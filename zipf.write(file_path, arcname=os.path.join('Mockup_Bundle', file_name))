@@ -1,0 +1,40 @@
+from PIL import Image
+import zipfile
+import os
+
+# Paths
+base_img_path = '/mnt/data/A_photograph_displays_a_heathered_denim_blue_short.png'
+output_dir = '/mnt/data/ko_fi_mockup_bundle'
+os.makedirs(output_dir, exist_ok=True)
+
+# Sizes in pixels at 300 DPI
+sizes = {
+    '2000x3000px': (2000, 3000),
+    '3000x4000px': (3000, 4000),
+    '8x10in': (2400, 3000),
+    '11x14in': (3300, 4200),
+    '16x20in': (4800, 6000),
+    'A4': (2480, 3508)
+}
+
+# Open base image
+img = Image.open(base_img_path)
+
+# Save resized versions
+for name, size in sizes.items():
+    resized_img = img.resize(size, Image.LANCZOS)
+    out_path = os.path.join(output_dir, f'mockup_{name}.jpg')
+    resized_img.save(out_path, 'JPEG', quality=95)
+
+# Save PNG transparent (same size as largest)
+png_out_path = os.path.join(output_dir, 'mockup_3000x4000px.png')
+img.save(png_out_path, 'PNG')
+
+# Create ZIP file
+zip_path = '/mnt/data/Retro_Los_Angeles_Tee_Mockup_Bundle.zip'
+with zipfile.ZipFile(zip_path, 'w') as zipf:
+    for file_name in os.listdir(output_dir):
+        file_path = os.path.join(output_dir, file_name)
+        zipf.write(file_path, arcname=file_name)
+
+zip_path
